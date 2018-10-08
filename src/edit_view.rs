@@ -301,6 +301,10 @@ impl EditView {
 
     // Commands
 
+    // pub fn copy(&mut self, win: &MainWin) {
+    //     self.send_action("copy", win);
+    // }
+
     pub fn undo(&mut self, win: &MainWin) {
         self.send_action("undo", win);
     }

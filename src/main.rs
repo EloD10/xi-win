@@ -49,6 +49,20 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use winapi::shared::windef::*;
+use winapi::um::winuser::{
+    OpenClipboard,
+    CloseClipboard,
+    EmptyClipboard,
+    GetClipboardSequenceNumber,
+    CountClipboardFormats,
+    IsClipboardFormatAvailable,
+    EnumClipboardFormats,
+    RegisterClipboardFormatW,
+    GetClipboardFormatNameW,
+    GetClipboardData,
+    SetClipboardData
+};
+use winapi::um::winuser::CF_TEXT;
 
 use serde_json::Value;
 
@@ -148,6 +162,48 @@ impl MainWin {
             state.edit_view.filename = Some(filename.clone());
         }
     }
+
+    fn copy(&self) {
+        // use std::ptr;
+        // unsafe {
+        //     OpenClipboard(ptr::null_mut());
+        //     EmptyClipboard();
+        // }
+
+        // let mut state = self.state.borrow_mut();
+        // let body = self.send_notification("edit", &json!({
+        //     "method": "copy",
+        // }));
+        // // let s = String::from("test");
+        // let ptr = s.as_ptr();
+        // unsafe {
+        //     SetClipboardData(1, ptr as *mut _);
+        //     CloseClipboard();
+        // }
+
+    }
+
+    fn paste(&self) {
+        // use std::ffi::CStr;
+        // use std::ptr;
+        // unsafe {
+        //     let open_clipboard = OpenClipboard(ptr::null_mut());
+        //     if open_clipboard == 1 {
+        //         if IsClipboardFormatAvailable(CF_TEXT) == 1 {
+        //             let get_clipboard = GetClipboardData(CF_TEXT);
+        //             let data = CStr::from_ptr(get_clipboard as *const _).to_bytes();
+        //             self.send_notification("edit", &json!({
+        //                 "method": "paste",
+        //                 "params": &json!({"chars": "password"}),
+        //             }));
+        //         }
+        //     }
+        //     CloseClipboard();
+        // }
+        let  state = self.state.borrow_mut();
+        let params = json!({"chars": "testing"});
+        self.send_edit_cmd("paste", &params, state.edit_view.view_id.as_str());
+    }
 }
 
 impl WinHandler for MainWinHandler {
@@ -196,6 +252,12 @@ impl WinHandler for MainWinHandler {
                 self.s().edit_view.redo(&self.win);
             }
             // TODO: cut, copy, paste (requires pasteboard)
+            x if x == MenuEntries::Copy as u32 => {
+                self.win.copy();
+            }
+            x if x == MenuEntries::Paste as u32 => {
+                self.win.paste();
+            }
             x if x == MenuEntries::UpperCase as u32 => {
                 self.s().edit_view.upper_case(&self.win);
             }
